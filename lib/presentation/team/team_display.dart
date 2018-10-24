@@ -1,11 +1,14 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_fab_dialer/flutter_fab_dialer.dart';
 import 'package:soccer/model/player.dart';
 import 'package:soccer/model/team.dart';
 import 'package:soccer/presentation/component/block_header.dart';
 import 'package:soccer/presentation/router_provider.dart';
+import 'package:soccer/presentation/team/team_coach_panel.dart';
 import 'package:soccer/state/bloc_provider.dart';
+import 'package:soccer/state/coach_state.dart';
 import 'package:soccer/state/player_state.dart';
 import 'package:soccer/state/team_state.dart';
 
@@ -25,6 +28,41 @@ class _TeamDisplay extends State<TeamDisplay> {
     state.fetchTeam(widget.teamId);
     final PlayerState playerState = BlocProvider.of(context);
     playerState.fetchPlayers(widget.teamId);
+    final CoachState coachState = BlocProvider.of(context);
+    coachState.fetchCoachs(widget.teamId);
+  }
+
+  List<FabMiniMenuItem> _getFabMenuItems(int teamId) {
+   return [
+      FabMiniMenuItem.withText(
+        Icon(FontAwesomeIcons.plusCircle),
+        Theme.of(context).accentColor,
+        4.0,
+        "Add",
+        () {
+          Router router = RouterProvider.of(context);
+          router.navigateTo(context, "/player/create");
+        },
+        "Add Player",
+        Theme.of(context).accentColor,
+        Colors.white,
+        true
+      ),
+      FabMiniMenuItem.withText(
+        Icon(FontAwesomeIcons.clipboardList),
+        Theme.of(context).accentColor,
+        4.0,
+        "Add",
+        () {
+          Router router = RouterProvider.of(context);
+          router.navigateTo(context, "/team/$teamId/coach/create");
+        },
+        "Add Coach",
+        Theme.of(context).accentColor,
+        Colors.white,
+        true
+      ),
+   ];
   }
 
   @override
@@ -59,27 +97,19 @@ class _TeamDisplay extends State<TeamDisplay> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
             );
             return Scaffold(
-                floatingActionButton: FloatingActionButton(
-                    onPressed: () {
-                      Router router = RouterProvider.of(context);
-                      router.navigateTo(context, "/player/create");
-                    },
-                    child: Icon(FontAwesomeIcons.plusCircle)),
-                body: Column(children: <Widget>[
-                  Hero(
-                      child:
-                          BlockHeader(child: content, color: Color(team.color)),
-                      tag: "team-${team.id}"),
-                  teamDetails(context, team),
-                  Container(
-                    padding: EdgeInsets.only(top: 12.0),
-                    child: Row(),
-                    decoration: BoxDecoration(
-                        border: BorderDirectional(
-                            bottom: BorderSide(color: Color(team.color)))),
-                  ),
-                  playerList(context),
-                ]));
+                body: Stack(
+                  children: <Widget>[
+                    Column(children: <Widget>[
+                      Hero(
+                          child:
+                              BlockHeader(child: content, color: Color(team.color)),
+                          tag: "team-${team.id}"),
+                      TeamCoachPanel(),
+                      playerList(context),
+                    ]),
+                    new FabDialer(_getFabMenuItems(team.id), Theme.of(context).accentColor, Icon(FontAwesomeIcons.plusCircle)),
+                  ],
+                ));
           }
           return Container();
         });
@@ -133,33 +163,5 @@ class _TeamDisplay extends State<TeamDisplay> {
         });
   }
 
-  Widget teamDetailRow(BuildContext context, String heading, String value) {
-    final TextStyle fieldStyle =
-        Theme.of(context).textTheme.body1.copyWith(color: Colors.black87);
-    return Container(
-        padding:
-            EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0, bottom: 16.0),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(heading, style: fieldStyle),
-          Text(value, style: fieldStyle),
-        ]));
-  }
 
-  Widget teamDetails(BuildContext context, Team team) {
-    return Column(children: [
-      teamDetailRow(context, "Head Coach", team.coach),
-      team.assistantCoach1 != null
-          ? teamDetailRow(context, "Assistant Coach", team.assistantCoach1)
-          : Container(),
-      team.assistantCoach2 != null
-          ? teamDetailRow(context, "Assistant Coach", team.assistantCoach2)
-          : Container(),
-      team.assistantCoach3 != null
-          ? teamDetailRow(context, "Assistant Coach", team.assistantCoach3)
-          : Container(),
-      team.assistantCoach4 != null
-          ? teamDetailRow(context, "Assistant Coach", team.assistantCoach4)
-          : Container(),
-    ]);
-  }
 }

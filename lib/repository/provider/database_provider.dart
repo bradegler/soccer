@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
+import 'package:soccer/model/coach.dart';
 import 'package:soccer/model/league.dart';
 import 'package:soccer/model/player.dart';
 import 'package:soccer/model/team.dart';
@@ -23,6 +24,7 @@ class DatabaseProvider {
       await db.execute(LeagueTable.create());
       await db.execute(TeamTable.create());
       await db.execute(PlayerTable.create());
+      await db.execute(CoachTable.create());
     });
   }
 

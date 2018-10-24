@@ -18,11 +18,6 @@ class TeamCreate extends StatefulWidget {
 class _TeamCreateState extends State<TeamCreate> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController imageController = TextEditingController();
-  final TextEditingController coachController = TextEditingController();
-  final TextEditingController asstCoach1Controller = TextEditingController();
-  final TextEditingController asstCoach2Controller = TextEditingController();
-  final TextEditingController asstCoach3Controller = TextEditingController();
-  final TextEditingController asstCoach4Controller = TextEditingController();
   bool canSave = false;
   Color selectedColor = Colors.blue;
 
@@ -113,40 +108,6 @@ class _TeamCreateState extends State<TeamCreate> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       ),
                       Center(
-                          child: TextFormField(
-                        decoration: InputDecoration(labelText: "Head Coach"),
-                        controller: coachController,
-                        style: inputTheme,
-                      )),
-                      Center(
-                          child: TextFormField(
-                        decoration:
-                            InputDecoration(labelText: "Assistant Coach 1"),
-                        controller: asstCoach1Controller,
-                        style: inputTheme,
-                      )),
-                      Center(
-                          child: TextFormField(
-                        decoration:
-                            InputDecoration(labelText: "Assistant Coach 2"),
-                        controller: asstCoach2Controller,
-                        style: inputTheme,
-                      )),
-                      Center(
-                          child: TextFormField(
-                        decoration:
-                            InputDecoration(labelText: "Assistant Coach 3"),
-                        controller: asstCoach3Controller,
-                        style: inputTheme,
-                      )),
-                      Center(
-                          child: TextFormField(
-                        decoration:
-                            InputDecoration(labelText: "Assistant Coach 4"),
-                        controller: asstCoach4Controller,
-                        style: inputTheme,
-                      )),
-                      Center(
                           child: RaisedButton(
                         color: Colors.green,
                         child: Text(
@@ -174,11 +135,6 @@ class _TeamCreateState extends State<TeamCreate> {
     final team = Team();
     team.image = imageController.value.text;
     team.name = nameController.value.text;
-    team.coach = coachController.value.text;
-    team.assistantCoach1 = asstCoach1Controller.value.text;
-    team.assistantCoach2 = asstCoach2Controller.value.text;
-    team.assistantCoach3 = asstCoach3Controller.value.text;
-    team.assistantCoach4 = asstCoach4Controller.value.text;
     team.color = selectedColor.value;
     team.leagueId = _leagueId;
 
