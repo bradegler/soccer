@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:soccer/presentation/app_theme.dart';
 import 'package:soccer/presentation/route_builder.dart';
 import 'package:soccer/presentation/router_provider.dart';
+import 'package:soccer/repository/coach_repository.dart';
 import 'package:soccer/repository/player_repository.dart';
+import 'package:soccer/repository/provider/coach_provider.dart';
 import 'package:soccer/repository/provider/database_provider.dart';
 import 'package:soccer/repository/provider/league_provider.dart';
 import 'package:soccer/repository/league_repository.dart';
@@ -12,6 +14,7 @@ import 'package:soccer/repository/provider/player_provider.dart';
 import 'package:soccer/repository/provider/team_provider.dart';
 import 'package:soccer/repository/team_repository.dart';
 import 'package:soccer/state/bloc_provider.dart';
+import 'package:soccer/state/coach_state.dart';
 import 'package:soccer/state/league_state.dart';
 import 'package:soccer/state/player_state.dart';
 import 'package:soccer/state/team_state.dart';
@@ -54,7 +57,10 @@ class _SoccerAppState extends State<SoccerApp> {
           bloc: TeamState(TeamRepository(TeamProvider(_provider))),
           child: BlocProvider<PlayerState>(
             bloc: PlayerState(PlayerRepository(PlayerProvider(_provider))),
-            child: app,
+            child: BlocProvider<CoachState>(
+              bloc: CoachState(CoachRepository(CoachProvider(_provider))),
+              child: app
+              ),
           ),
         ),
       )
