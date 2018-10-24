@@ -4,8 +4,12 @@ import 'dart:async';
 import 'package:soccer/repository/provider/database_provider.dart';
 import 'package:soccer/repository/provider/relational_model.dart';
 
-class SimpleModelProvider <T extends RelationalModel> {
-  SimpleModelProvider(this.provider, this.model);
+/// This class provides database operations supporting a [RelationalModel] object.
+/// 
+/// All standard CRUD operations are supported as well as fetching by a grouping identifier
+/// and fetching all records of the type.
+class RelationalModelProvider <T extends RelationalModel> {
+  RelationalModelProvider(this.provider, this.model);
 
   final DatabaseProvider provider;
   final RelationalTableModel<T> model;
