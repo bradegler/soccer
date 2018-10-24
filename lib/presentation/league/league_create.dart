@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:soccer/model/league.dart';
 import 'package:soccer/presentation/component/block_header.dart';
 import 'package:soccer/presentation/component/color_picker.dart';
+import 'package:soccer/presentation/component/image_select_field.dart';
 import 'package:soccer/presentation/router_provider.dart';
 import 'package:soccer/state/bloc_provider.dart';
 import 'package:soccer/state/league_state.dart';
@@ -14,23 +17,25 @@ class LeagueCreate extends StatefulWidget {
 }
 
 class _LeagueCreateState extends State<LeagueCreate> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController imageController = TextEditingController();
-  bool canSave = false;
-  Color selectedColor = Colors.blue;
+  final TextEditingController _nameController = TextEditingController();
+  bool _canSave = false;
+  Color _selectedColor = Colors.blue;
+  File _imageFile;
   @override
   void initState() {
     super.initState();
-    nameController.addListener(() {
+    _nameController.addListener(() {
       setState(() {
-        canSave = nameController.value.text.length > 0;
+        _canSave = _nameController.value.text.length > 0;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final inputTheme = Theme.of(context).textTheme.subhead.copyWith(color: Colors.black87);
+    final ThemeData theme = Theme.of(context);
+    final TextTheme textTheme = theme.textTheme;
+    final TextStyle inputStyle = textTheme.subhead.copyWith(color: Colors.black87);
     final Widget content = Row(
       children: <Widget>[
         IconButton(
@@ -39,11 +44,7 @@ class _LeagueCreateState extends State<LeagueCreate> {
             onPressed: () {
               Navigator.of(context).pop();
             }),
-        Text("Create League",
-            style: Theme.of(context)
-                .textTheme
-                .subhead
-                .copyWith(color: Colors.white)),
+        Text("Add League", style: textTheme.subhead.copyWith(color: Colors.white)),
         Container(
           height: 64.0,
         )
@@ -53,52 +54,58 @@ class _LeagueCreateState extends State<LeagueCreate> {
     return Scaffold(
         body: Column(
       children: <Widget>[
-        BlockHeader(child: content, color: Theme.of(context).primaryColor),
+        BlockHeader(child: content, color: theme.primaryColor),
         Form(
             child: Container(
           padding: EdgeInsets.all(12.0),
           child: Column(
             children: [
-              Center(
-                  child: TextFormField(
-                decoration: InputDecoration(labelText: "League Name"),
-                style: inputTheme,
-                controller: nameController,
-              )),
-              Center(
-                  child: TextFormField(
-                decoration: InputDecoration(labelText: "Image Location"),
-                style: inputTheme,
-                controller: imageController,
-              )),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    flex: 1,
+                    child: ImageSelectField(
+                      onImageSelect: _onImageSelect,
+                      preview: _imageFile != null ? Image.file(_imageFile) : null,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      margin: EdgeInsets.only(left: 12.0),
+                      child: Center(
+                          child: TextFormField(
+                        decoration: InputDecoration(labelText: "League Name"),
+                        controller: _nameController,
+                        style: inputStyle,
+                      )),
+                    ),
+                  ),
+                ],
+              ),
               Row(
                 children: [
                   Text(
                     "Color",
-                    style: inputTheme,
+                    style: inputStyle,
                   ),
                   IconButton(
-                      icon: Icon(
-                        FontAwesomeIcons.solidEdit,
-                        color: selectedColor,
-                      ),
-                      onPressed: () async {
-                        Color color = await showDialog(
-                            context: context,
-                            builder: (context) =>
-                                PrimaryColorPickerDialog());
-                        setState(() => selectedColor = color);
-                      })
+                    icon: Icon(
+                      FontAwesomeIcons.solidEdit,
+                      color: _selectedColor,
+                    ),
+                    onPressed: _onColorSelect,
+                  )
                 ],
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
               ),
               Center(
                   child: RaisedButton(
-                color: Colors.green,
+                color: theme.accentColor,
                 child: Text(
-                  "Create",
+                  "Save",
                 ),
-                onPressed: canSave ? onCreate : null,
+                onPressed: _canSave ? _onCreate : null,
               ))
             ],
           ),
@@ -107,16 +114,28 @@ class _LeagueCreateState extends State<LeagueCreate> {
     ));
   }
 
-  void onCreate() {
+  void _onCreate() {
     final LeagueState state = BlocProvider.of(context);
     final Router router = RouterProvider.of(context);
     final league = League();
-    league.image = imageController.value.text;
-    league.name = nameController.value.text;
-    league.color = selectedColor.value;
+    // @TODO - Figure out how to store images
+    league.image = "";
+    league.name = _nameController.value.text;
+    league.color = _selectedColor.value;
     state.insertLeague(league).then((l) {
-      router.navigateTo(context, "/league/display/${l.id}",
-          replace: true, transition: TransitionType.fadeIn);
+      router.navigateTo(context, "/league/display/${l.id}", replace: true, transition: TransitionType.fadeIn);
     });
+  }
+
+  void _onColorSelect() async {
+    Color color = await showDialog(context: context, builder: (context) => PrimaryColorPickerDialog());
+    setState(() => _selectedColor = color);
+  }
+
+  void _onImageSelect(File file) {
+    if (file != null) {
+      print(file.path);
+      setState(() => _imageFile = file);
+    }
   }
 }
