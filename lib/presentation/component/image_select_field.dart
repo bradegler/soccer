@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,41 +8,70 @@ typedef void ImageSelectCallback(File file);
 
 class ImageSelectField extends StatelessWidget {
   final ImageSelectCallback onImageSelect;
+  final Image preview;
 
-  const ImageSelectField({Key key, @required this.onImageSelect}) : super(key: key);
+  const ImageSelectField({Key key, @required this.onImageSelect, this.preview}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _handleStartCapture(context),
-          child: Container(
-        height: 100.0,
-        padding: EdgeInsets.all(4.0),
-        color: Colors.grey.shade300,
-        child: Icon(FontAwesomeIcons.cameraRetro, color: Colors.black87,),
+    return Stack(children: [
+      Container(child: preview),
+      GestureDetector(
+        onTap: () => _handleStartCapture(context),
+        child: Container(
+          height: 100.0,
+          width: 100.0,
+          padding: EdgeInsets.all(4.0),
+          color: Colors.grey.shade300,
+          child: Icon(
+            FontAwesomeIcons.cameraRetro,
+            color: Colors.black87,
+          ),
+        ),
       ),
-    ); 
+    ]);
   }
 
   void _handleStartCapture(BuildContext context) async {
     final ThemeData theme = Theme.of(context);
-    File result = await showDialog(context: context, barrierDismissible: true, builder: (context) {
-      return Column(children: <Widget>[
-        Row(children: <Widget>[
-          RaisedButton(onPressed: () => _selectImage(context, ImageSource.camera), 
-            child: Row(children: [Icon(FontAwesomeIcons.camera), Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text("Camera"),
-            )]), color: theme.accentColor,),
-          RaisedButton(onPressed: () => _selectImage(context, ImageSource.camera), 
-            child: Row(children: [Icon(FontAwesomeIcons.images), Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text("Gallery"),
-            )]), color: theme.accentColor,),
-        ], mainAxisAlignment: MainAxisAlignment.spaceEvenly,)
-      ], mainAxisAlignment: MainAxisAlignment.center,);
-    });
-    if(result != null) {
+    File result = await showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) {
+          return Column(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  RaisedButton(
+                    onPressed: () => _selectImage(context, ImageSource.camera),
+                    child: Row(children: [
+                      Icon(FontAwesomeIcons.camera),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text("Camera"),
+                      )
+                    ]),
+                    color: theme.accentColor,
+                  ),
+                  RaisedButton(
+                    onPressed: () => _selectImage(context, ImageSource.camera),
+                    child: Row(children: [
+                      Icon(FontAwesomeIcons.images),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text("Gallery"),
+                      )
+                    ]),
+                    color: theme.accentColor,
+                  ),
+                ],
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              )
+            ],
+            mainAxisAlignment: MainAxisAlignment.center,
+          );
+        });
+    if (result != null) {
       print("Received file: ${result.path}");
       onImageSelect(result);
     }

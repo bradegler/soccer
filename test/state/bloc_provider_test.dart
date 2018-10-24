@@ -35,6 +35,7 @@ void main() {
   });
 }
 
+/// Need a defined class to get the correct build context passed to onTap
 class _GestureHolder extends StatelessWidget {
   final Key gestureKey;
   final WidgetBuilder onTap;
