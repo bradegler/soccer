@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:fluro/fluro.dart';
@@ -10,6 +9,15 @@ import 'package:soccer/presentation/splash_route.dart';
 import 'package:soccer/presentation/team/team_create.dart';
 import 'package:soccer/presentation/team/team_display.dart';
 
+/// Master router. Manages the route to handler mapping for
+/// all routes. Creates the Fluro router and configures it
+/// to be used in the app.
+///
+/// Usage:
+/// ```dart
+/// Router router = RouterBuilder().build();
+/// ```
+///
 class RouterBuilder {
   Router build() {
     final Router router = Router();
@@ -30,40 +38,31 @@ class RouterBuilder {
 }
 
 class _RouteHandlers {
-
-  Handler _hCoachCreate(Router router) => 
-      Handler(handlerFunc: (context, params) {
+  Handler _hCoachCreate(Router router) => Handler(handlerFunc: (context, params) {
         return CoachCreate(teamId: int.parse(params["id"].first));
       });
-  Handler _hSplash(Router router) => 
-    Handler(handlerFunc: (context, params) {
-      Future.delayed(Duration(seconds: 4), () {
-        router.navigateTo(context, "/leagues", replace: true, transition: TransitionType.fadeIn, transitionDuration: Duration(milliseconds: 750));
+  Handler _hSplash(Router router) => Handler(handlerFunc: (context, params) {
+        Future.delayed(Duration(seconds: 4), () {
+          router.navigateTo(context, "/leagues", replace: true, transition: TransitionType.fadeIn, transitionDuration: Duration(milliseconds: 750));
+        });
+        return SplashRoute();
       });
-      return SplashRoute();
-    });
 
-  Handler _hTeamCreate(Router router) =>
-      Handler(handlerFunc: (context, params) {
+  Handler _hTeamCreate(Router router) => Handler(handlerFunc: (context, params) {
         return TeamCreate();
       });
-  Handler _hLeaguesRoute(Router router) =>
-      Handler(handlerFunc: (context, params) {
+  Handler _hLeaguesRoute(Router router) => Handler(handlerFunc: (context, params) {
         return LeaguesRoute();
       });
-  Handler _hLeagueCreate(Router router) =>
-      Handler(handlerFunc: (context, params) {
+  Handler _hLeagueCreate(Router router) => Handler(handlerFunc: (context, params) {
         return LeagueCreate();
       });
 
-  Handler _hLeagueDisplay(Router router) =>
-    Handler(handlerFunc: (context, params) {
-      return LeagueDisplay(leagueId: int.parse(params["id"].first));
-    });
+  Handler _hLeagueDisplay(Router router) => Handler(handlerFunc: (context, params) {
+        return LeagueDisplay(leagueId: int.parse(params["id"].first));
+      });
 
-  Handler _hTeamDisplay(Router router) =>
-    Handler(handlerFunc: (context, params) {
-      return TeamDisplay(teamId: int.parse(params["id"].first));
-    });
-
+  Handler _hTeamDisplay(Router router) => Handler(handlerFunc: (context, params) {
+        return TeamDisplay(teamId: int.parse(params["id"].first));
+      });
 }

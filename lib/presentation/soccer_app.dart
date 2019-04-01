@@ -1,4 +1,3 @@
-
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:soccer/presentation/app_theme.dart';
@@ -27,45 +26,40 @@ class SoccerApp extends StatefulWidget {
 class _SoccerAppState extends State<SoccerApp> {
   DatabaseProvider _provider;
   Router _router;
-  @override 
+  @override
   void initState() {
     super.initState();
     _provider = DatabaseProvider("pickatto_soccer.db");
     _provider.open();
     _router = RouterBuilder().build();
   }
+
   @override
   void dispose() {
     _provider.close();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-    final app = 
-      MaterialApp(
-       title: "Soccer Manager",
-       onGenerateRoute: _router.generator,
-       initialRoute: "/",
-       theme: AppTheme().themeData
-    );
+    final app = MaterialApp(title: "Soccer Manager", onGenerateRoute: _router.generator, initialRoute: "/", theme: AppTheme().themeData);
 
+    // @TODO - This feels extremely ugly. There has to be a better way to manage multiple
+    // BLoC objects rather than just chaining them together like this.
+    // Pushing them deeper into the widget tree seems great on paper but then you have to deal
+    // with getting the dependency on the database provider somehow pushed down to whatever
+    // widget would ultimately create the BLoC if it is moved from here.
     return RouterProvider(
-      router: _router,
-      child: BlocProvider<LeagueState>(
-        bloc: LeagueState(LeagueRepository(LeagueProvider(_provider))),
-        child: BlocProvider<TeamState>(
-          bloc: TeamState(TeamRepository(TeamProvider(_provider))),
-          child: BlocProvider<PlayerState>(
-            bloc: PlayerState(PlayerRepository(PlayerProvider(_provider))),
-            child: BlocProvider<CoachState>(
-              bloc: CoachState(CoachRepository(CoachProvider(_provider))),
-              child: app
-              ),
+        router: _router,
+        child: BlocProvider<LeagueState>(
+          bloc: LeagueState(LeagueRepository(LeagueProvider(_provider))),
+          child: BlocProvider<TeamState>(
+            bloc: TeamState(TeamRepository(TeamProvider(_provider))),
+            child: BlocProvider<PlayerState>(
+              bloc: PlayerState(PlayerRepository(PlayerProvider(_provider))),
+              child: BlocProvider<CoachState>(bloc: CoachState(CoachRepository(CoachProvider(_provider))), child: app),
+            ),
           ),
-        ),
-      )
-    );
+        ));
   }
-
 }
-

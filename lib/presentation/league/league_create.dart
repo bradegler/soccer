@@ -8,8 +8,10 @@ import 'package:soccer/presentation/component/block_header.dart';
 import 'package:soccer/presentation/component/color_picker.dart';
 import 'package:soccer/presentation/component/image_select_field.dart';
 import 'package:soccer/presentation/router_provider.dart';
+import 'package:soccer/repository/image_repository.dart';
 import 'package:soccer/state/bloc_provider.dart';
 import 'package:soccer/state/league_state.dart';
+import 'package:image/image.dart' as img;
 
 class LeagueCreate extends StatefulWidget {
   @override
@@ -21,6 +23,7 @@ class _LeagueCreateState extends State<LeagueCreate> {
   bool _canSave = false;
   Color _selectedColor = Colors.blue;
   File _imageFile;
+  ImageRepository _imgRepo = ImageRepository();
   @override
   void initState() {
     super.initState();
@@ -65,7 +68,7 @@ class _LeagueCreateState extends State<LeagueCreate> {
                   Expanded(
                     flex: 1,
                     child: ImageSelectField(
-                      onImageSelect: _onImageSelect,
+                      onImageSelect: (file) => _onImageSelect(context, file),
                       preview: _imageFile != null ? Image.file(_imageFile) : null,
                     ),
                   ),
@@ -114,12 +117,14 @@ class _LeagueCreateState extends State<LeagueCreate> {
     ));
   }
 
-  void _onCreate() {
+  void _onCreate() async {
     final LeagueState state = BlocProvider.of(context);
     final Router router = RouterProvider.of(context);
     final league = League();
-    // @TODO - Figure out how to store images
     league.image = "";
+    if (_imageFile != null) {
+      league.image = await _imgRepo.saveImage(img.decodeImage(_imageFile.readAsBytesSync()));
+    }
     league.name = _nameController.value.text;
     league.color = _selectedColor.value;
     state.insertLeague(league).then((l) {
@@ -132,7 +137,7 @@ class _LeagueCreateState extends State<LeagueCreate> {
     setState(() => _selectedColor = color);
   }
 
-  void _onImageSelect(File file) {
+  void _onImageSelect(BuildContext context, File file) {
     if (file != null) {
       print(file.path);
       setState(() => _imageFile = file);
